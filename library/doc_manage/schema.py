@@ -3,7 +3,7 @@ from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 from django.contrib.auth.models import User
 from doc_manage.models import Document, Borrow, Category
-
+from auth.util import *
 
 class UserNode(DjangoObjectType):
     class Meta:
@@ -59,4 +59,13 @@ class Query(AbstractType):
         if context.user.is_superuser:
             return User.objects.all()
         else:
-            return User.objects.none()
+            raise Exception('Unauthorized')
+
+    def resolve_all_borrows(self, args, context, info):
+        user = context.user
+        if issuperuser(user) or islibstaff(user):
+            return Borrow.objects.all()
+        elif isstudent(user):
+            return Borrow.objects.filter(borrower=user)
+        else:
+            raise Exception('Unauthorized')
