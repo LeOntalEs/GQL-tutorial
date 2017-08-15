@@ -40,14 +40,23 @@ class BorrowNode(DjangoObjectType):
 
 
 class Query(AbstractType):
-    users = relay.Node.Field(UserNode)
+    # users = relay.Node.Field(UserNode)
     all_users = DjangoFilterConnectionField(UserNode)
 
-    category = relay.Node.Field(CategoryNode)
+    # category = relay.Node.Field(CategoryNode)
     all_categories = DjangoFilterConnectionField(CategoryNode)
 
-    documents = relay.Node.Field(DocumentNode)
+    # documents = relay.Node.Field(DocumentNode)
     all_documents = DjangoFilterConnectionField(DocumentNode)
 
-    borrows = relay.Node.Field(BorrowNode)
+    # borrows = relay.Node.Field(BorrowNode)
     all_borrows = DjangoFilterConnectionField(BorrowNode)
+
+    def resolve_all_users(self, args, context, info):
+        print()
+        print(context.user, context.user.is_superuser)
+        print()
+        if context.user.is_superuser:
+            return User.objects.all()
+        else:
+            return User.objects.none()
